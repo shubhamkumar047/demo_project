@@ -1,0 +1,8 @@
+ #Collect the data from the list of servers and only include it if the percentage free is below the threshold we set above. 
+ $tableFragment= Get-WMIObject  -ComputerName $computers win32_processor ` 
+| select __Server, @{name="CPUUtilization" ;expression ={“{0:N2}” -f (get-counter -Counter "\Processor(_Total)\% Processor Time" -SampleInterval 1 -MaxSamples 5 | 
+    select -ExpandProperty countersamples | select -ExpandProperty cookedvalue | Measure-Object -Average).average}}` 
+| Where-Object {[decimal]$_.CPUUtilization -gt [decimal]$cputhreshold} ` 
+| ConvertTo-HTML -fragment  
+ 
+ 
